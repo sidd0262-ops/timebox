@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>타임박스</title>
+  <meta name="theme-color" content="#e9e8e4">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="타임박스">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&family=Song+Myung&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <img class="ink-bg" src="textures/ink.svg" alt="" aria-hidden="true">
+  <div class="haze" aria-hidden="true"><i></i><i></i><i></i></div>
+  <!-- 왼쪽 기록 바 -->
+  <aside id="history" aria-label="지난 기록">
+    <div class="hist-head">
+      <button class="x" id="histClose" aria-label="닫기">✕</button>
+      <h2>기록</h2>
+    </div>
+    <div class="tabs" role="tablist">
+      <button data-mode="day" class="on">하루</button>
+      <button data-mode="week">7일</button>
+      <button data-mode="month">30일</button>
+      <button data-mode="year">1년</button>
+    </div>
+    <div class="hist-nav">
+      <button id="histPrev" aria-label="이전">◀</button>
+      <button id="histLabel" class="label" title="오늘로"></button>
+      <button id="histNext" aria-label="다음">▶</button>
+    </div>
+    <div id="histBody"></div>
+  </aside>
+  <div id="scrimDrawer"></div>
+
+  <!-- 노란 줄 메모장 -->
+  <div class="pad" id="pad">
+    <p class="verse">“그러므로 내일 일을 위하여 염려하지 말라 내일 일은 내일이 염려할 것이요 한 날의 괴로움은 그 날로 족하니라”<cite>마태복음 6:34</cite></p>
+
+    <header class="todaybar">
+      <button id="histOpen" class="icon" aria-label="기록 보기">☰</button>
+      <div class="today">
+        <span class="today-tag" aria-label="오늘">오늘</span>
+        <strong id="todayDate"></strong>
+        <span id="todayProgress" class="progress"></span>
+      </div>
+      <button id="settingsOpen" class="icon" aria-label="설정">⚙</button>
+    </header>
+
+    <main>
+      <section>
+        <h2>오늘의 키워드</h2>
+        <p class="hint">키워드를 누르면 순위를 매길 수 있어요</p>
+        <div id="chips" class="chips"></div>
+        <div class="row-actions">
+          <button id="moreDump" class="pencil">✎ 생각 더 쏟기</button>
+          <button id="addKw" class="pencil">+ 키워드 직접 추가</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>우선순위</h2>
+        <ol id="cells" class="cells"></ol>
+      </section>
+
+      <section id="extra"></section>
+    </main>
+  </div>
+
+  <!-- 1단계: 시 -->
+  <section id="poemScreen" class="screen" hidden>
+    <button class="x screen-x" data-skip aria-label="닫기">✕</button>
+    <div class="screen-inner">
+      <div class="poem-wrap">
+        <div class="inscription">
+          <p class="eyebrow">잠을 깨우는 시 한 편</p>
+          <h1 id="poemTitle"></h1>
+          <p id="poemPoet" class="poet"></p>
+        </div>
+        <div id="poemBody" class="poem"></div>
+      </div>
+      <div class="screen-actions">
+        <button id="poemOther" class="ghost">다른 시</button>
+        <button id="poemNext" class="primary">생각 쏟으러 가기 →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2단계: 생각 쏟기 -->
+  <section id="dumpScreen" class="screen" hidden>
+    <button class="x screen-x" data-skip aria-label="닫기">✕</button>
+    <div class="screen-inner dump-inner">
+      <p class="eyebrow">머릿속 비우기</p>
+      <h1>생각나는 대로 막 쏟아내세요</h1>
+      <textarea id="dumpText" placeholder="맞춤법도 순서도 신경 쓰지 말고…&#10;예) 보고서 마감 꼭 오늘까지, 엄마한테 전화하기&#10;장보고 운동해야 돼"></textarea>
+      <div class="screen-actions">
+        <button id="dumpGo" class="primary">다 쏟았어요 · 키워드 뽑기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 아래에서 올라오는 창 -->
+  <div id="scrim"></div>
+  <div id="sheet" role="dialog" aria-modal="true" hidden>
+    <button class="x sheet-x" id="sheetClose" aria-label="닫기">✕</button>
+    <h3 id="sheetTitle"></h3>
+    <div id="sheetBody"></div>
+  </div>
+
+  <div id="toast" role="status"></div>
+
+  <script src="poems.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

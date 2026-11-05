@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900">
+  <!-- 구겨졌다 편 한지의 주름 -->
+  <filter id="c" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feTurbulence type="turbulence" baseFrequency="0.0035" numOctaves="4" seed="11" stitchTiles="stitch" result="n"/>
+    <feDiffuseLighting in="n" surfaceScale="14" lighting-color="#ffffff" result="l">
+      <feDistantLight azimuth="225" elevation="48"/>
+    </feDiffuseLighting>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer>
+      <feFuncR type="linear" slope="0.26" intercept="0.77"/>
+      <feFuncG type="linear" slope="0.26" intercept="0.77"/>
+      <feFuncB type="linear" slope="0.26" intercept="0.77"/>
+    </feComponentTransfer>
+  </filter>
+  <rect width="100%" height="100%" filter="url(#c)"/>
+</svg>
