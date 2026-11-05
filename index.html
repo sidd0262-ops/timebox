@@ -21,7 +21,7 @@
   <!-- 왼쪽 기록 바 -->
   <aside id="history" aria-label="지난 기록">
     <div class="hist-head">
-      <button class="x" id="histClose" aria-label="닫기">✕</button>
+      <button class="x" id="histClose" aria-label="기록 바 접기"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4.5M10.5 5.5 4 12l6.5 6.5"/></svg></button>
       <h2>기록</h2>
     </div>
     <div class="tabs" role="tablist">
@@ -31,26 +31,26 @@
       <button data-mode="year">1년</button>
     </div>
     <div class="hist-nav">
-      <button id="histPrev" aria-label="이전">◀</button>
+      <button id="histPrev" aria-label="이전"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></button>
       <button id="histLabel" class="label" title="오늘로"></button>
-      <button id="histNext" aria-label="다음">▶</button>
+      <button id="histNext" aria-label="다음"><svg class="ico sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg></button>
     </div>
     <div id="histBody"></div>
   </aside>
   <div id="scrimDrawer"></div>
 
-  <!-- 노란 줄 메모장 -->
+  <!-- 오늘 -->
   <div class="pad" id="pad">
     <p class="verse">“그러므로 내일 일을 위하여 염려하지 말라 내일 일은 내일이 염려할 것이요 한 날의 괴로움은 그 날로 족하니라”<cite>마태복음 6:34</cite></p>
 
     <header class="todaybar">
-      <button id="histOpen" class="icon" aria-label="기록 보기">☰</button>
+      <button id="histOpen" class="icon" aria-label="기록 바 열기·접기"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h16"/></svg></button>
       <div class="today">
         <span class="today-tag" aria-label="오늘">오늘</span>
         <strong id="todayDate"></strong>
         <span id="todayProgress" class="progress"></span>
       </div>
-      <button id="settingsOpen" class="icon" aria-label="설정">⚙</button>
+      <button id="settingsOpen" class="icon" aria-label="설정"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h9M17 8h3M4 16h3M11 16h9"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/></svg></button>
     </header>
 
     <main>
@@ -59,7 +59,7 @@
         <p class="hint">키워드를 누르면 순위를 매길 수 있어요</p>
         <div id="chips" class="chips"></div>
         <div class="row-actions">
-          <button id="moreDump" class="pencil">✎ 생각 더 쏟기</button>
+          <button id="moreDump" class="pencil">생각 쏟기</button>
           <button id="addKw" class="pencil">+ 키워드 직접 추가</button>
         </div>
       </section>
@@ -75,7 +75,7 @@
 
   <!-- 1단계: 시 -->
   <section id="poemScreen" class="screen" hidden>
-    <button class="x screen-x" data-skip aria-label="닫기">✕</button>
+    <button class="x screen-x" id="poemBack" aria-label="뒤로"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4.5M10.5 5.5 4 12l6.5 6.5"/></svg></button>
     <div class="screen-inner">
       <div class="poem-wrap">
         <div class="inscription">
@@ -87,14 +87,14 @@
       </div>
       <div class="screen-actions">
         <button id="poemOther" class="ghost">다른 시</button>
-        <button id="poemNext" class="primary">생각 쏟으러 가기 →</button>
+        <button id="poemNext" class="primary">생각 쏟으러 가기</button>
       </div>
     </div>
   </section>
 
   <!-- 2단계: 생각 쏟기 -->
   <section id="dumpScreen" class="screen" hidden>
-    <button class="x screen-x" data-skip aria-label="닫기">✕</button>
+    <button class="x screen-x" id="dumpBack" aria-label="뒤로"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4.5M10.5 5.5 4 12l6.5 6.5"/></svg></button>
     <div class="screen-inner dump-inner">
       <p class="eyebrow">머릿속 비우기</p>
       <h1>생각나는 대로 막 쏟아내세요</h1>
@@ -108,7 +108,7 @@
   <!-- 아래에서 올라오는 창 -->
   <div id="scrim"></div>
   <div id="sheet" role="dialog" aria-modal="true" hidden>
-    <button class="x sheet-x" id="sheetClose" aria-label="닫기">✕</button>
+    <button class="x sheet-x" id="sheetClose" aria-label="뒤로"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4.5M10.5 5.5 4 12l6.5 6.5"/></svg></button>
     <h3 id="sheetTitle"></h3>
     <div id="sheetBody"></div>
   </div>

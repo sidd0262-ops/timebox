@@ -1,7 +1,7 @@
 'use strict';
 
 /* =========================================================
-   타임박스 — 나만 쓰는 노란 메모장 타임박스
+   타임박스 — 나만 쓰는 수묵 타임박스
    데이터는 이 기기 브라우저(localStorage)에만 저장됩니다.
    ========================================================= */
 
@@ -360,7 +360,9 @@ function showPoem() {
   $('#poemScreen').hidden = false;
   $('#poemScreen').scrollTop = 0;
 }
-function showDump() {
+let dumpFromPoem = false;
+function showDump(fromPoem) {
+  dumpFromPoem = fromPoem === true;
   $('#poemScreen').hidden = true;
   $('#dumpScreen').hidden = false;
   const ta = $('#dumpText');
@@ -372,10 +374,14 @@ function closeScreens() {
   $('#dumpScreen').hidden = true;
   maybeDeadlineCheck();
 }
-$('#poemNext').onclick = showDump;
+$('#poemNext').onclick = () => showDump(true);
 $('#poemOther').onclick = showPoem;
-$$('[data-skip]').forEach(b => b.onclick = closeScreens);
-$('#moreDump').onclick = showDump;
+$('#poemBack').onclick = closeScreens;
+$('#dumpBack').onclick = () => {           // 시에서 왔으면 시로, 아니면 오늘 화면으로
+  if (dumpFromPoem) { $('#dumpScreen').hidden = true; $('#poemScreen').hidden = false; dumpFromPoem = false; }
+  else closeScreens();
+};
+$('#moreDump').onclick = () => showDump(false);
 
 $('#dumpGo').onclick = () => {
   const text = $('#dumpText').value.trim();
@@ -393,7 +399,7 @@ $('#dumpGo').onclick = () => {
   closeScreens();
   render();
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  toast(added ? `키워드 ${added}개를 골랐어요 ✎` : '새 키워드가 없어요 · 직접 추가할 수 있어요');
+  toast(added ? `키워드 ${added}개를 골랐어요` : '새 키워드가 없어요 · 직접 추가할 수 있어요');
 };
 
 /* =========================================================
@@ -414,10 +420,10 @@ function scheduleAlarms() {
     timers.push(setTimeout(() => { fn(); scheduleAlarms(); }, at - now));
   };
   plan(S.settings.morningOn, S.settings.morning, () =>
-    notify('☀️ 좋은 아침이에요', '시 한 편 읽고, 오늘 머릿속을 쏟아내 볼까요?'));
+    notify('좋은 아침이에요', '시 한 편 읽고, 오늘 머릿속을 쏟아내 볼까요?'));
   plan(S.settings.deadlineOn, S.settings.deadline, () => {
     const left = openTasks().length;
-    notify('🌙 오늘 마감 확인', left ? `남은 일이 ${left}개 있어요. 끝 / 다음날로 / 삭제로 정리해요.` : '오늘 일을 모두 끝냈어요!');
+    notify('오늘 마감 확인', left ? `남은 일이 ${left}개 있어요. 끝 / 다음날로 / 삭제로 정리해요.` : '오늘 일을 모두 끝냈어요!');
     maybeDeadlineCheck(true);
   });
 }
@@ -443,8 +449,8 @@ function maybeDeadlineCheck(force) {
 }
 function showDeadlineSheet() {
   const list = openTasks();
-  if (!list.length) { closeSheet(); toast('오늘 일 정리 끝! 🌙'); return; }
-  openSheet('🌙 오늘 마감 확인', `
+  if (!list.length) { closeSheet(); toast('오늘 일 정리 끝'); return; }
+  openSheet('오늘 마감 확인', `
     <p class="note">아직 남은 일이 ${list.length}개 있어요. 하나씩 정리해 볼까요? 정리하지 않은 일은 내일 키워드로 자동으로 넘어가요.</p>
     ${list.map(t => `<div class="check-item"><div class="t">${t.rank ? `<b>${t.rank}</b>` : ''}${esc(t.text)}</div>${barsHTML(t)}</div>`).join('')}
     <button class="btn light" data-close>나중에 할게요</button>`);
@@ -467,14 +473,14 @@ $('#settingsOpen').onclick = openSettings;
 function openSettings() {
   const st = S.settings;
   const b = openSheet('설정', `
-    <label class="setting"><span class="lbl">☀️ 아침 알림<small>시 한 편 + 생각 쏟기로 하루 시작</small></span>
+    <label class="setting"><span class="lbl">아침 알림<small>시 한 편 + 생각 쏟기로 하루 시작</small></span>
       <input type="checkbox" class="switch" data-k="morningOn" ${st.morningOn ? 'checked' : ''}>
       <input type="time" data-k="morning" value="${st.morning}"></label>
-    <label class="setting"><span class="lbl">🌙 마감 확인 알림<small>남은 일을 끝 / 다음날로 / 삭제로 정리</small></span>
+    <label class="setting"><span class="lbl">마감 확인 알림<small>남은 일을 끝 / 다음날로 / 삭제로 정리</small></span>
       <input type="checkbox" class="switch" data-k="deadlineOn" ${st.deadlineOn ? 'checked' : ''}>
       <input type="time" data-k="deadline" value="${st.deadline}"></label>
     <button class="btn" data-perm ${'Notification' in window && Notification.permission !== 'default' ? 'disabled' : ''}>${permLabel()}</button>
-    <button class="btn light" data-ics>📅 휴대폰 달력에 매일 알림 넣기</button>
+    <button class="btn light" data-ics>휴대폰 달력에 매일 알림 넣기</button>
     <p class="note">앱이 꺼져 있을 때도 확실히 울리게 하려면 위 버튼으로 달력에 매일 반복 알림을 넣어 두세요. (앱 안의 알림은 앱이 열려 있거나 백그라운드에 있을 때 울려요.)</p>
 
     <p class="sheet-label">앱 설치</p>
@@ -535,8 +541,8 @@ function downloadIcs() {
     'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${title}`, 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT',
   ];
   const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//timebox//KO', 'CALSCALE:GREGORIAN'];
-  if (st.morningOn) lines.push(...ev('morning', st.morning, '☀️ 타임박스 · 오늘 생각 쏟기', '시 한 편 읽고 머릿속을 쏟아내 보세요'));
-  if (st.deadlineOn) lines.push(...ev('deadline', st.deadline, '🌙 타임박스 · 마감 확인', '남은 일을 끝 · 다음날로 · 삭제로 정리하세요'));
+  if (st.morningOn) lines.push(...ev('morning', st.morning, '타임박스 · 오늘 생각 쏟기', '시 한 편 읽고 머릿속을 쏟아내 보세요'));
+  if (st.deadlineOn) lines.push(...ev('deadline', st.deadline, '타임박스 · 마감 확인', '남은 일을 끝 · 다음날로 · 삭제로 정리하세요'));
   lines.push('END:VCALENDAR');
   download('타임박스-매일알림.ics', lines.join('\r\n'), 'text/calendar');
   toast('달력 파일을 열어 “추가”를 눌러 주세요');
@@ -635,8 +641,30 @@ $('#histBody').addEventListener('click', e => {
   const mo = e.target.closest('[data-gomonth]');
   if (mo) { H.mode = 'month'; H.anchor = mo.dataset.gomonth; renderHistory(); }
 });
-const setDrawer = on => { document.body.classList.toggle('drawer-open', on); $('#scrimDrawer').classList.toggle('on', on); };
-$('#histOpen').onclick = () => setDrawer(true);
+const wide = matchMedia('(min-width: 980px)');
+const setDrawer = on => {
+  document.body.classList.toggle('drawer-open', on);
+  $('#scrimDrawer').classList.toggle('on', on && !wide.matches);
+  if (wide.matches) { S.meta.drawerShut = !on; save(); }
+};
+const syncDrawer = () => setDrawer(wide.matches ? !S.meta.drawerShut : false);
+if (wide.addEventListener) wide.addEventListener('change', syncDrawer);
+syncDrawer();
+$('#histOpen').onclick = () => setDrawer(!document.body.classList.contains('drawer-open'));
+// 손가락으로 밀어서 넣고 빼기 (기록 바)
+let sx = null, sy = 0;
+document.addEventListener('touchstart', e => { const t = e.touches[0]; sx = t.clientX; sy = t.clientY; }, { passive: true });
+document.addEventListener('touchend', e => {
+  if (sx === null) return;
+  const t = e.changedTouches[0], dx = t.clientX - sx, dy = Math.abs(t.clientY - sy);
+  const open = document.body.classList.contains('drawer-open');
+  const free = $('#poemScreen').hidden && $('#dumpScreen').hidden && $('#sheet').hidden;
+  if (free && dy < 50) {
+    if (open && dx < -60) setDrawer(false);
+    else if (!open && sx < 28 && dx > 60) setDrawer(true);
+  }
+  sx = null;
+}, { passive: true });
 $('#histClose').onclick = () => setDrawer(false);
 $('#scrimDrawer').onclick = () => setDrawer(false);
 
@@ -656,12 +684,8 @@ function startOfDay() {
   H.anchor = null;
   rollover();
   render();
-  if (S.meta.flowDate !== T) {   // 오늘 처음 열면: 시 → 생각 쏟기
-    S.meta.flowDate = T; save();
-    showPoem();
-  } else {
-    maybeDeadlineCheck();
-  }
+  S.meta.flowDate = T; save();
+  showPoem();                    // 앱을 열 때마다: 시 한 편 → 생각 쏟기
 }
 
 document.addEventListener('visibilitychange', () => {

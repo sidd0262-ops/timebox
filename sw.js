@@ -1,5 +1,5 @@
 // 타임박스 서비스 워커: 오프라인에서도 열리게 + 알림 누르면 앱 열기
-const CACHE = 'timebox-v4';
+const CACHE = 'timebox-v5';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'poems.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
   'textures/fiber.svg', 'textures/ink.svg'];
