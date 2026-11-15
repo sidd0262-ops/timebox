@@ -41,7 +41,7 @@
 
   <!-- 오늘 -->
   <div class="pad" id="pad">
-    <p class="verse">“그러므로 내일 일을 위하여 염려하지 말라 내일 일은 내일이 염려할 것이요 한 날의 괴로움은 그 날로 족하니라”<cite>마태복음 6:34</cite></p>
+    <p class="verse">“그러므로 내일 일을 걱정하지 말라. 내일 일은 내일이 맡아서 걱정할 것이요, 한 날의 괴로움은 그날에 겪는 것으로 충분하다.”<cite>마태복음 6:34</cite></p>
 
     <header class="todaybar">
       <button id="histOpen" class="icon" aria-label="기록 바 열기·접기"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h16"/></svg></button>
@@ -73,21 +73,30 @@
     </main>
   </div>
 
-  <!-- 1단계: 시 -->
-  <section id="poemScreen" class="screen" hidden>
-    <button class="x screen-x" id="poemBack" aria-label="뒤로"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4.5M10.5 5.5 4 12l6.5 6.5"/></svg></button>
-    <div class="screen-inner">
-      <div class="poem-wrap">
-        <div class="inscription">
-          <p class="eyebrow">잠을 깨우는 시 한 편</p>
-          <h1 id="poemTitle"></h1>
-          <p id="poemPoet" class="poet"></p>
-        </div>
-        <div id="poemBody" class="poem"></div>
+  <!-- 1단계: 말씀과 세 질문 (모두 답해야 시작) -->
+  <section id="wordScreen" class="screen" hidden>
+    <div class="screen-inner word-inner">
+      <div class="word">
+        <p class="eyebrow">오늘의 말씀</p>
+        <blockquote class="word-text"><span style="animation-delay:0.30s">그러므로 내일 일을 걱정하지 말라.</span><span style="animation-delay:0.65s">내일 일은 내일이</span><span style="animation-delay:1.00s">맡아서 걱정할 것이요,</span><span style="animation-delay:1.35s">한 날의 괴로움은</span><span style="animation-delay:1.70s">그날에 겪는 것으로 충분하다.</span></blockquote>
+        <p class="word-ref">마태복음 6장 34절</p>
       </div>
+      <ol class="reflect">
+        <li style="animation-delay:1.80s">
+          <label for="rq1"><b>一</b>내일로 미뤄 두어도 괜찮은 걱정 하나는 무엇인가요? 그것을 내려놓으면 무엇이 가벼워지나요?</label>
+          <textarea id="rq1" class="rq" rows="2" placeholder="한 줄이면 충분해요"></textarea>
+        </li>
+        <li style="animation-delay:2.05s">
+          <label for="rq2"><b>二</b>오늘 하루만 놓고 본다면, 내가 할 수 있는 작은 한 걸음은 무엇인가요?</label>
+          <textarea id="rq2" class="rq" rows="2" placeholder="한 줄이면 충분해요"></textarea>
+        </li>
+        <li style="animation-delay:2.30s">
+          <label for="rq3"><b>三</b>오늘 이미 주어진 것 가운데 감사한 한 가지는 무엇인가요?</label>
+          <textarea id="rq3" class="rq" rows="2" placeholder="한 줄이면 충분해요"></textarea>
+        </li>
+      </ol>
       <div class="screen-actions">
-        <button id="poemOther" class="ghost">다른 시</button>
-        <button id="poemNext" class="primary">생각 쏟으러 가기</button>
+        <button id="wordNext" class="primary" disabled>세 질문에 답하면 시작할 수 있어요</button>
       </div>
     </div>
   </section>
@@ -115,7 +124,6 @@
 
   <div id="toast" role="status"></div>
 
-  <script src="poems.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

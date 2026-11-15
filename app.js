@@ -343,42 +343,49 @@ $('#addKw').onclick = () => {
 /* =========================================================
    1단계 시 → 2단계 생각 쏟기
    ========================================================= */
-function pickPoem() {
-  const P = window.POEMS || [];
-  let i = Math.floor(Math.random() * P.length);
-  if (P.length > 1 && i === S.meta.poemIdx) i = (i + 1) % P.length;
-  S.meta.poemIdx = i; save();
-  return P[i];
+const QUESTIONS = [...document.querySelectorAll('.reflect label')].map(l => l.lastChild.textContent.trim());
+const answers = () => $$('.rq').map(t => t.value.trim());
+function updateWordNext() {
+  const left = answers().filter(v => !v).length;
+  const btn = $('#wordNext');
+  btn.disabled = left > 0;
+  btn.textContent = left ? `${left}개 질문이 남았어요` : '오늘 시작하기';
 }
-function showPoem() {
-  const p = pickPoem();
-  if (!p) return showDump();
-  $('#poemTitle').textContent = p.title;
-  $('#poemPoet').textContent = p.poet;
-  $('#poemBody').innerHTML = p.text.split('\n').map((l, i) => `<span style="animation-delay:${0.3 + i * 0.22}s">${esc(l)}</span>`).join('');
+let thisReflect = null;
+function showWord() {
+  thisReflect = null;               // 앱을 열 때마다: 말씀 → 세 질문 (모두 답해야 시작)
+  $$('.rq').forEach(t => { t.value = ''; });
+  updateWordNext();
   $('#dumpScreen').hidden = true;
-  $('#poemScreen').hidden = false;
-  $('#poemScreen').scrollTop = 0;
+  $('#wordScreen').hidden = false;
+  $('#wordScreen').scrollTop = 0;
 }
-let dumpFromPoem = false;
-function showDump(fromPoem) {
-  dumpFromPoem = fromPoem === true;
-  $('#poemScreen').hidden = true;
+$$('.rq').forEach(t => t.addEventListener('input', updateWordNext));
+let dumpFromWord = false;
+function showDump(fromWord) {
+  dumpFromWord = fromWord === true;
+  $('#wordScreen').hidden = true;
   $('#dumpScreen').hidden = false;
   const ta = $('#dumpText');
   ta.value = '';
   setTimeout(() => ta.focus(), 80);
 }
 function closeScreens() {
-  $('#poemScreen').hidden = true;
+  $('#wordScreen').hidden = true;
   $('#dumpScreen').hidden = true;
   maybeDeadlineCheck();
 }
-$('#poemNext').onclick = () => showDump(true);
-$('#poemOther').onclick = showPoem;
-$('#poemBack').onclick = closeScreens;
-$('#dumpBack').onclick = () => {           // 시에서 왔으면 시로, 아니면 오늘 화면으로
-  if (dumpFromPoem) { $('#dumpScreen').hidden = true; $('#poemScreen').hidden = false; dumpFromPoem = false; }
+$('#wordNext').onclick = () => {
+  const a = answers();
+  if (a.some(v => !v)) return;
+  const qa = QUESTIONS.map((q, i) => ({ q, a: a[i] }));
+  if (thisReflect) thisReflect.qa = qa;     // 생각 쏟기에서 돌아와 고친 경우: 새로 쌓지 않고 고치기
+  else (day(T).reflect ||= []).push(thisReflect = { at: Date.now(), qa });
+  save();
+  showDump(true);
+};
+$('#dumpBack').onclick = () => {           // 질문에서 왔으면 질문으로, 아니면 오늘 화면으로
+  if (dumpFromWord) { $('#dumpScreen').hidden = true; $('#wordScreen').hidden = false; dumpFromWord = false; }
   else closeScreens();
 };
 $('#moreDump').onclick = () => showDump(false);
@@ -420,7 +427,7 @@ function scheduleAlarms() {
     timers.push(setTimeout(() => { fn(); scheduleAlarms(); }, at - now));
   };
   plan(S.settings.morningOn, S.settings.morning, () =>
-    notify('좋은 아침이에요', '시 한 편 읽고, 오늘 머릿속을 쏟아내 볼까요?'));
+    notify('좋은 아침이에요', '말씀 한 구절과 세 질문으로 오늘을 시작해요'));
   plan(S.settings.deadlineOn, S.settings.deadline, () => {
     const left = openTasks().length;
     notify('오늘 마감 확인', left ? `남은 일이 ${left}개 있어요. 끝 / 다음날로 / 삭제로 정리해요.` : '오늘 일을 모두 끝냈어요!');
@@ -441,7 +448,7 @@ const openTasks = () => tasksOf(T).filter(t => t.status === 'open').sort((a, b) 
 /* 마감 시간이 지나 앱을 열면 남은 일 정리 창 */
 function maybeDeadlineCheck(force) {
   if (!S.settings.deadlineOn) return;
-  if (!$('#poemScreen').hidden || !$('#dumpScreen').hidden) return;
+  if (!$('#wordScreen').hidden || !$('#dumpScreen').hidden) return;
   if (!force && (nowMinutes() < minutesOf(S.settings.deadline) || S.meta.deadlineSeen === T)) return;
   if (!openTasks().length) return;
   S.meta.deadlineSeen = T; save();
@@ -473,7 +480,7 @@ $('#settingsOpen').onclick = openSettings;
 function openSettings() {
   const st = S.settings;
   const b = openSheet('설정', `
-    <label class="setting"><span class="lbl">아침 알림<small>시 한 편 + 생각 쏟기로 하루 시작</small></span>
+    <label class="setting"><span class="lbl">아침 알림<small>말씀 · 세 질문 · 생각 쏟기로 하루 시작</small></span>
       <input type="checkbox" class="switch" data-k="morningOn" ${st.morningOn ? 'checked' : ''}>
       <input type="time" data-k="morning" value="${st.morning}"></label>
     <label class="setting"><span class="lbl">마감 확인 알림<small>남은 일을 끝 / 다음날로 / 삭제로 정리</small></span>
@@ -541,7 +548,7 @@ function downloadIcs() {
     'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${title}`, 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT',
   ];
   const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//timebox//KO', 'CALSCALE:GREGORIAN'];
-  if (st.morningOn) lines.push(...ev('morning', st.morning, '타임박스 · 오늘 생각 쏟기', '시 한 편 읽고 머릿속을 쏟아내 보세요'));
+  if (st.morningOn) lines.push(...ev('morning', st.morning, '타임박스 · 오늘 생각 쏟기', '말씀 한 구절과 세 질문으로 오늘을 시작해요'));
   if (st.deadlineOn) lines.push(...ev('deadline', st.deadline, '타임박스 · 마감 확인', '남은 일을 끝 · 다음날로 · 삭제로 정리하세요'));
   lines.push('END:VCALENDAR');
   download('타임박스-매일알림.ics', lines.join('\r\n'), 'text/calendar');
@@ -569,13 +576,14 @@ function renderHistory() {
     label.textContent = a === T ? `오늘 · ${fmtShort(a)}` : `${y}년 ${fmtShort(a)}`;
     const dd = S.days[a];
     const ts = (dd?.tasks || []).slice().sort((p, q) => (p.rank ?? 99) - (q.rank ?? 99));
-    if (!ts.length && !dd?.dump) { body.innerHTML = '<p class="h-empty">이 날의 기록이 없어요</p>'; return; }
+    if (!ts.length && !dd?.dump && !dd?.reflect?.length) { body.innerHTML = '<p class="h-empty">이 날의 기록이 없어요</p>'; return; }
     const done = ts.filter(t => t.status === 'done').length;
     const icon = { done: '✓', carried: '→', open: a < T ? '·' : '○' };
     body.innerHTML = `<p class="h-sum">끝낸 일 ${done} / ${ts.length}</p><ul class="h-list">${ts.map(t => `
       <li class="s-${t.status}"><span class="ic">${icon[t.status] || '·'}</span>
       <span class="tx">${t.rank ? `${t.rank}. ` : ''}${esc(t.text)}</span>
       <span class="tg">${t.status === 'done' ? '끝' : t.status === 'carried' ? '다음날로' : a > T ? '예정' : '진행 중'}</span></li>`).join('')}</ul>
+      ${dd?.reflect?.length ? `<details class="dump"><summary>이 날의 세 질문</summary>${dd.reflect.map(r => `<dl class="qa">${r.qa.map(x => `<dt>${esc(x.q)}</dt><dd>${esc(x.a)}</dd>`).join('')}</dl>`).join('')}</details>` : ''}
       ${dd?.dump ? `<details class="dump"><summary>이 날 쏟아낸 생각</summary><pre>${esc(dd.dump)}</pre></details>` : ''}`;
   }
 
@@ -658,7 +666,7 @@ document.addEventListener('touchend', e => {
   if (sx === null) return;
   const t = e.changedTouches[0], dx = t.clientX - sx, dy = Math.abs(t.clientY - sy);
   const open = document.body.classList.contains('drawer-open');
-  const free = $('#poemScreen').hidden && $('#dumpScreen').hidden && $('#sheet').hidden;
+  const free = $('#wordScreen').hidden && $('#dumpScreen').hidden && $('#sheet').hidden;
   if (free && dy < 50) {
     if (open && dx < -60) setDrawer(false);
     else if (!open && sx < 28 && dx > 60) setDrawer(true);
@@ -685,7 +693,7 @@ function startOfDay() {
   rollover();
   render();
   S.meta.flowDate = T; save();
-  showPoem();                    // 앱을 열 때마다: 시 한 편 → 생각 쏟기
+  showWord();                    // 앱을 열 때마다: 말씀 → 세 질문 → 생각 쏟기
 }
 
 document.addEventListener('visibilitychange', () => {

@@ -43,7 +43,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* 바탕은 수묵 안개, 글 쓰는 자리만 한지 */
 #history, .screen { background-color: #e3e3e0; background-image: var(--wash); }
-.hanji, main, #dumpText, #sheet {
+.hanji, main, #dumpText, .rq, #sheet {
   background-color: #f6f5f1;
   background-image: url(textures/fiber.svg);
   box-shadow: 0 1px 2px #0000001f, 0 14px 34px -14px #00000052;
@@ -321,30 +321,37 @@ h2 {
 .screen-x { position: fixed; top: calc(env(safe-area-inset-top) + 8px); left: 8px; z-index: 2; }
 .eyebrow { margin: 0 0 6px; font-family: var(--serif); font-size: 13px; letter-spacing: .25em; color: var(--seal); }
 .screen h1 { margin: 0; font-family: var(--brush); font-weight: 400; font-size: 46px; line-height: 1.15; }
-.poet { margin: 6px 0 26px; color: var(--ink-soft); font-family: var(--serif); font-size: 15px; }
-.poet::before { content: "— "; }
-/* 한국화의 제화시처럼: 제목과 시인을 세로로 오른쪽에 */
-.poem-wrap { display: flex; flex-direction: row-reverse; gap: 22px; align-items: flex-start; }
-.inscription {
-  writing-mode: vertical-rl;
-  flex: 0 0 auto;
-  max-height: 72vh;
-  padding-left: 4px;
-  border-left: 1px solid var(--ink-faint);
+/* 말씀: 여백 속에 세로로 고요히 */
+.word-inner { padding-top: calc(64px + env(safe-area-inset-top)); }
+.word { text-align: center; margin-bottom: 44px; }
+.word .eyebrow { letter-spacing: .5em; color: var(--ink-soft); margin-bottom: 26px; }
+.word-text {
+  margin: 0; font-family: var(--serif); font-size: 21px; line-height: 2.1;
+  letter-spacing: .02em; word-break: keep-all; color: var(--ink);
 }
-.inscription .eyebrow { margin: 0 0 0 6px; letter-spacing: .4em; color: var(--ink-soft); }
-.inscription h1 { margin: 0 0 0 4px; line-height: 1.05; letter-spacing: .06em; }
-.inscription .poet { margin: 0; }
-.inscription .poet::before { content: none; }
-.inscription .poet::after {
-  content: "시"; display: inline-block; writing-mode: horizontal-tb;
-  margin-top: 12px; width: 24px; height: 24px; line-height: 24px; text-align: center;
-  font-size: 13px; color: var(--paper-edge); background: var(--ink); border-radius: 2px;
-  box-shadow: inset 0 0 0 1.5px #ffffff55;
+.word-text span { display: block; animation: lineIn 1.2s ease both; }
+.word-ref {
+  display: inline-block; margin: 22px 0 0; padding: 3px 9px 2px;
+  font-family: var(--serif); font-size: 12px; letter-spacing: .15em;
+  color: var(--paper-edge); background: var(--seal); border-radius: 2px;
+  animation: lineIn 1.2s 1.9s ease both;
 }
-.poem-wrap .poem { flex: 1; min-width: 0; padding-top: 4px; }
-.poem { font-family: var(--serif); font-size: 18px; line-height: 2; word-break: keep-all; }
-.poem span { display: block; min-height: 1em; animation: lineIn 1s ease both; }  /* 애니메이션이 꺼진 폰에서도 글이 보이게 */
+/* 세 질문 */
+.reflect { list-style: none; margin: 0; padding: 0; display: grid; gap: 30px; }
+.reflect li { animation: lineIn 1s ease both; }
+.reflect label {
+  display: flex; gap: 12px; align-items: baseline;
+  font-family: var(--serif); font-size: 16px; line-height: 1.75; word-break: keep-all; color: var(--ink);
+}
+.reflect label b { font-weight: 400; font-size: 13px; color: var(--ink-soft); flex: 0 0 auto; }
+.rq {
+  display: block; width: 100%; margin-top: 10px;
+  border: 0; outline: 0; resize: vertical; border-radius: 2px 3px 2px 4px;
+  font-family: var(--brush); font-size: 26px; line-height: 34px; color: var(--ink);
+  padding: 10px 14px; min-height: 64px; caret-color: var(--seal);
+}
+.rq::placeholder { color: #66655f77; }
+.primary:disabled { background: #1d1d1c44; box-shadow: none; cursor: default; font-size: 22px; }
 @keyframes lineIn { from { opacity: 0; filter: blur(3px); } to { opacity: 1; filter: none; } }
 .screen-actions { display: flex; gap: 10px; margin-top: auto; padding-top: 30px; position: sticky; bottom: calc(14px + env(safe-area-inset-bottom)); }
 .primary, .ghost {
@@ -533,3 +540,8 @@ details.dump pre { white-space: pre-wrap; font-family: var(--brush); font-size: 
   :root { --gutter: 44px; }
   .bar { font-size: 11.5px; padding: 0 4px; }
 }
+
+/* 기록 바: 그날의 세 질문 */
+.qa { margin: 10px 0 0; font-size: 13.5px; }
+.qa dt { color: var(--ink-soft); margin-top: 8px; word-break: keep-all; }
+.qa dd { margin: 2px 0 0; font-family: var(--brush); font-size: 22px; line-height: 28px; }

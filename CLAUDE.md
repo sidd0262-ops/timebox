@@ -3,13 +3,15 @@
 나만 쓰는 한지·수묵 디자인 타임박스 PWA. 휴대폰 홈 화면에 설치해서 사용.
 
 - GitHub: https://github.com/sidd0262-ops/timebox
-- 파일: index.html, app.js(로직), style.css, poems.js(열 때 보여주는 시), sw.js(서비스 워커), manifest.webmanifest, icons/, textures/(ink.svg, fiber.svg)
-- 빌드 없음: 정적 파일 그대로 배포. 로컬 미리보기는 `python -m http.server 8765`
+- 파일: index.html, app.js(로직), style.css, sw.js(서비스 워커), manifest.webmanifest, icons/, textures/(ink.svg, fiber.svg)
+- 빌드 없음: 정적 파일 그대로 배포. 로컬 미리보기는 `python -m http.server 8766`
 - 데이터는 기기 브라우저 localStorage(`timebox.v1`)에만 저장. 기기 간 옮길 땐 앱 안의 내보내기/불러오기 사용
 - 키(`timebox.v1`) 구조를 바꾸면 기존 기록이 사라질 수 있으니 반드시 마이그레이션 코드 추가
 
 ## 진행 상황
 - 2026-11-05: 첫 버전(한지·수묵 디자인) → 배경을 안개 낀 수묵으로 교체(쓰는 곳만 한지) → 열 때마다 시 표시, 접히는 기록 바, 얇은 뒤로가기 화살표, 흑백 아이콘
+- 2026-11-16: 시 화면을 없애고, 열 때마다 마태복음 6:34 말씀 + 긍정적 사고 질문 3개 화면으로 교체. 세 질문에 모두 답해야 앱 사용 가능(뒤로 버튼 없음). 답은 그날 기록(`days[날짜].reflect`)에 저장되고 기록 바 '이 날의 세 질문'에서 다시 볼 수 있음. 상단 말씀 문구도 같은 번역으로 통일. poems.js 삭제
+- 남은 일: 사용자가 폰에서 보고 질문 문구·흐름 수정 요청 예정
 
 ## 내 프로젝트 생태계 (모든 저장소 공통)
 GitHub 계정 `sidd0262-ops` 를 기준으로 Windows PC · Mac · 아이폰(클라우드 세션)에서 같은 코드를 씁니다.
