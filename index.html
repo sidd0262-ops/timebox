@@ -41,7 +41,6 @@
 
   <!-- 오늘 -->
   <div class="pad" id="pad">
-    <p class="verse">“그러므로 내일 일을 걱정하지 말라. 내일 일은 내일이 맡아서 걱정할 것이요, 한 날의 괴로움은 그날에 겪는 것으로 충분하다.”<cite>마태복음 6:34</cite></p>
 
     <header class="todaybar">
       <button id="histOpen" class="icon" aria-label="기록 바 열기·접기"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h11M4 17h16"/></svg></button>
@@ -95,6 +94,16 @@
           <textarea id="rq3" class="rq" rows="2" placeholder="한 줄이면 충분해요"></textarea>
         </li>
       </ol>
+      <div class="alarm-set">
+        <p class="eyebrow">알림 시간</p>
+        <label class="setting"><span class="lbl">오전 알림<small>오늘 할 일 입력하기</small></span>
+          <input type="checkbox" class="switch" data-k="morningOn">
+          <input type="time" data-k="morning"></label>
+        <label class="setting"><span class="lbl">오후 알림<small>오늘 할 일 다 끝냈나요?</small></span>
+          <input type="checkbox" class="switch" data-k="deadlineOn">
+          <input type="time" data-k="deadline"></label>
+        <button class="btn light" id="wordPerm" hidden>알림 허용하기</button>
+      </div>
       <div class="screen-actions">
         <button id="wordNext" class="primary" disabled>세 질문에 답하면 시작할 수 있어요</button>
       </div>

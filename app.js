@@ -356,11 +356,34 @@ function showWord() {
   thisReflect = null;               // 앱을 열 때마다: 말씀 → 세 질문 (모두 답해야 시작)
   $$('.rq').forEach(t => { t.value = ''; });
   updateWordNext();
+  bindAlarmInputs($('.alarm-set')); syncWordPerm();
   $('#dumpScreen').hidden = true;
   $('#wordScreen').hidden = false;
   $('#wordScreen').scrollTop = 0;
 }
 $$('.rq').forEach(t => t.addEventListener('input', updateWordNext));
+
+/* 알림 시간 입력칸 (첫 화면 · 설정 창 공용) */
+function bindAlarmInputs(root) {
+  $$('[data-k]', root).forEach(inp => {
+    const k = inp.dataset.k;
+    if (inp.type === 'checkbox') inp.checked = !!S.settings[k]; else inp.value = S.settings[k];
+    inp.onchange = async () => {
+      S.settings[k] = inp.type === 'checkbox' ? inp.checked : inp.value;
+      save(); scheduleAlarms(); toast('알림 시간을 저장했어요');
+      if (inp.type === 'checkbox' && inp.checked && 'Notification' in window && Notification.permission === 'default') {
+        await Notification.requestPermission(); syncWordPerm();
+      }
+    };
+  });
+}
+function syncWordPerm() {
+  const b = $('#wordPerm');
+  b.hidden = !('Notification' in window) || Notification.permission === 'granted';
+  b.textContent = permLabel();
+  b.disabled = 'Notification' in window && Notification.permission === 'denied';
+}
+$('#wordPerm').onclick = async () => { await Notification.requestPermission(); syncWordPerm(); };
 let dumpFromWord = false;
 function showDump(fromWord) {
   dumpFromWord = fromWord === true;
@@ -427,10 +450,10 @@ function scheduleAlarms() {
     timers.push(setTimeout(() => { fn(); scheduleAlarms(); }, at - now));
   };
   plan(S.settings.morningOn, S.settings.morning, () =>
-    notify('좋은 아침이에요', '말씀 한 구절과 세 질문으로 오늘을 시작해요'));
+    notify('오늘 할 일을 입력해요', '생각을 쏟고 오늘 할 일을 정해 볼까요?'));
   plan(S.settings.deadlineOn, S.settings.deadline, () => {
     const left = openTasks().length;
-    notify('오늘 마감 확인', left ? `남은 일이 ${left}개 있어요. 끝 / 다음날로 / 삭제로 정리해요.` : '오늘 일을 모두 끝냈어요!');
+    notify('오늘 할 일 다 끝냈나요?', left ? `남은 일이 ${left}개 있어요. 끝 / 다음날로 / 삭제로 정리해요.` : '오늘 일을 모두 끝냈어요!');
     maybeDeadlineCheck(true);
   });
 }
@@ -480,10 +503,10 @@ $('#settingsOpen').onclick = openSettings;
 function openSettings() {
   const st = S.settings;
   const b = openSheet('설정', `
-    <label class="setting"><span class="lbl">아침 알림<small>말씀 · 세 질문 · 생각 쏟기로 하루 시작</small></span>
+    <label class="setting"><span class="lbl">오전 알림<small>오늘 할 일 입력하기</small></span>
       <input type="checkbox" class="switch" data-k="morningOn" ${st.morningOn ? 'checked' : ''}>
       <input type="time" data-k="morning" value="${st.morning}"></label>
-    <label class="setting"><span class="lbl">마감 확인 알림<small>남은 일을 끝 / 다음날로 / 삭제로 정리</small></span>
+    <label class="setting"><span class="lbl">오후 알림<small>오늘 할 일 다 끝냈나요? (남은 일 정리)</small></span>
       <input type="checkbox" class="switch" data-k="deadlineOn" ${st.deadlineOn ? 'checked' : ''}>
       <input type="time" data-k="deadline" value="${st.deadline}"></label>
     <button class="btn" data-perm ${'Notification' in window && Notification.permission !== 'default' ? 'disabled' : ''}>${permLabel()}</button>
@@ -499,15 +522,12 @@ function openSettings() {
     <div class="btn-row"><button class="btn light" data-export>내보내기</button><button class="btn light" data-import>불러오기</button></div>
     <input type="file" accept="application/json,.json" data-file hidden>`);
 
-  $$('[data-k]', b).forEach(inp => inp.addEventListener('change', () => {
-    S.settings[inp.dataset.k] = inp.type === 'checkbox' ? inp.checked : inp.value;
-    save(); scheduleAlarms(); toast('저장했어요');
-  }));
+  bindAlarmInputs(b);
   $('[data-perm]', b).onclick = async () => {
     if (!('Notification' in window)) return;
     await Notification.requestPermission();
     openSettings();
-    if (Notification.permission === 'granted') notify('알림이 켜졌어요', '아침과 마감 시간에 알려 드릴게요.');
+    if (Notification.permission === 'granted') notify('알림이 켜졌어요', '오전·오후 정한 시간에 알려 드릴게요.');
   };
   $('[data-ics]', b).onclick = downloadIcs;
   $('[data-install]', b)?.addEventListener('click', async () => { installEvt.prompt(); await installEvt.userChoice; installEvt = null; openSettings(); });
@@ -548,8 +568,8 @@ function downloadIcs() {
     'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${title}`, 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT',
   ];
   const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//timebox//KO', 'CALSCALE:GREGORIAN'];
-  if (st.morningOn) lines.push(...ev('morning', st.morning, '타임박스 · 오늘 생각 쏟기', '말씀 한 구절과 세 질문으로 오늘을 시작해요'));
-  if (st.deadlineOn) lines.push(...ev('deadline', st.deadline, '타임박스 · 마감 확인', '남은 일을 끝 · 다음날로 · 삭제로 정리하세요'));
+  if (st.morningOn) lines.push(...ev('morning', st.morning, '타임박스 · 오늘 할 일 입력', '생각을 쏟고 오늘 할 일을 정해요'));
+  if (st.deadlineOn) lines.push(...ev('deadline', st.deadline, '타임박스 · 오늘 할 일 다 끝냈나요?', '남은 일을 끝 · 다음날로 · 삭제로 정리하세요'));
   lines.push('END:VCALENDAR');
   download('타임박스-매일알림.ics', lines.join('\r\n'), 'text/calendar');
   toast('달력 파일을 열어 “추가”를 눌러 주세요');
@@ -693,7 +713,13 @@ function startOfDay() {
   rollover();
   render();
   S.meta.flowDate = T; save();
-  showWord();                    // 앱을 열 때마다: 말씀 → 세 질문 → 생각 쏟기
+  if (todayReady()) { closeScreens(); return; }  // 오늘 할 일을 이미 입력했으면 바로 오늘 할 일 창
+  showWord();                    // 아직이면: 말씀 → 세 질문 → 생각 쏟기
+}
+/* 오늘 세 질문에 답했고 할 일도 들어가 있으면 첫 화면을 건너뜀 */
+function todayReady() {
+  const d = S.days[T];
+  return !!(d?.reflect?.length && d.tasks.some(t => t.status === 'open' || t.status === 'done'));
 }
 
 document.addEventListener('visibilitychange', () => {
