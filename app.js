@@ -216,12 +216,12 @@ function renderExtra() {
   const carried = ts.filter(t => t.status === 'carried');
   let html = '';
   if (doneLoose.length) {
-    html += `<h2>순위 없이 끝낸 일</h2><ul class="mini">${doneLoose.map(t =>
+    html += `<h2>끝낸 일</h2><ul class="mini">${doneLoose.map(t =>
       `<li><b style="color:var(--done)">✓</b>${esc(t.text)} <button class="plain" data-act="undo" data-id="${t.id}">되돌리기</button></li>`).join('')}</ul>`;
   }
   if (carried.length) {
     html += `<h2 style="margin-top:var(--lh)">내일로 넘긴 일</h2><ul class="mini">${carried.map(t =>
-      `<li><b style="color:var(--carry)">→</b>${esc(t.text)}</li>`).join('')}</ul>`;
+      `<li><b style="color:var(--carry)">→</b>${esc(t.text)} <button class="plain" data-act="uncarry" data-id="${t.id}">되돌리기</button></li>`).join('')}</ul>`;
   }
   $('#extra').innerHTML = html;
 }
@@ -232,6 +232,12 @@ function act(kind, id) {
   if (!t) return;
   if (kind === 'done') { t.status = 'done'; t.doneAt = Date.now(); toast('끝! 잘했어요 ✓'); }
   else if (kind === 'undo') { t.status = 'open'; delete t.doneAt; }
+  else if (kind === 'uncarry') {             // 실수로 내일로 넘긴 일 되돌리기: 다음날 키워드에서 빼고 오늘로
+    const origin = t.origin || t.id, to = t.carriedTo;
+    if (to && S.days[to]) S.days[to].tasks = S.days[to].tasks.filter(x => !((x.origin || x.id) === origin && x.from === T && x.status === 'open'));
+    t.status = 'open'; delete t.carriedTo;
+    toast('오늘 할 일로 되돌렸어요');
+  }
   else if (kind === 'next') {
     t.status = 'carried'; t.carriedTo = addDays(T, 1);
     carryInto(addDays(T, 1), t, T);
