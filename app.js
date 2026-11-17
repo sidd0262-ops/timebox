@@ -734,8 +734,18 @@ document.addEventListener('visibilitychange', () => {
   scheduleAlarms();
 });
 
+// 새 버전이 올라오면 바로 받아서 한 번 새로고침 (폰에 옛 화면이 남지 않게)
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  const hadSW = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadSW || reloaded) return;
+    reloaded = true; location.reload();
+  });
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+    reg.update();
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update(); });
+  }).catch(() => {});
 }
 
 startOfDay();

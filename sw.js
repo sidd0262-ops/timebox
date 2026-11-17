@@ -1,11 +1,11 @@
 // 타임박스 서비스 워커: 오프라인에서도 열리게 + 알림 누르면 앱 열기
-const CACHE = 'timebox-v9';
+const CACHE = 'timebox-v10';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png',
   'textures/fiber.svg', 'textures/ink.svg'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -28,7 +28,7 @@ self.addEventListener('fetch', e => {
     })));
     return;
   }
-  e.respondWith(fetch(req).then(res => {
+  e.respondWith(fetch(req, { cache: 'no-cache' }).then(res => {   // 휴대폰 HTTP 캐시 무시, 항상 서버에 최신 확인
     if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
     return res;
   }).catch(() => caches.match(req).then(hit => hit || caches.match('index.html'))));
